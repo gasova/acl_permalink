@@ -93,6 +93,7 @@ module AclPermalink
     model_class.extend self
   end
 
+
   # Set global defaults for all models using AclPermalink.
   #
   # The default defaults are to use the +:reserved+ module and nothing else.
@@ -114,6 +115,6 @@ module AclPermalink
   # This makes 'slugs' into 'acl_permalink_slugs' and also respects any
   # 'global' table_name_prefix set on ActiveRecord::Base.
   def self.table_name_prefix
-    "#{ActiveRecord::Base.table_name_prefix}acl_permalink_"
+    "#{ActiveRecord::Base.table_name_prefix}"
   end
 end
