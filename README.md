@@ -1,7 +1,5 @@
 # AclPermalink
 
-[![Build Status](https://travis-ci.org/norman/acl_permalink.png)](https://travis-ci.org/norman/acl_permalink)
-
 AclPermalink is the "Swiss Army bulldozer" of slugging and permalink plugins for
 Ruby on Rails. It allows you to create pretty URLs and work with human-friendly
 strings as if they were numeric ids for Active Record models.
@@ -20,8 +18,6 @@ instead of:
 AclPermalink offers many advanced features, including: slug history and
 versioning, i18n, Globalize support, scoped slugs, reserved words, and custom
 slug generators.
-
-AclPermalink is compatible with Active Record **3.0** and higher.
 
 ## Version 1.x
 
