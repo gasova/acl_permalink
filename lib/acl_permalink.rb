@@ -114,7 +114,8 @@ module AclPermalink
   #
   # This makes 'slugs' into 'acl_permalink_slugs' and also respects any
   # 'global' table_name_prefix set on ActiveRecord::Base.
-  def self.table_name_prefix
+  def self.table_name#_prefix
     "#{ActiveRecord::Base.table_name_prefix}"
+    #"#{ActiveRecord::Base.table_name_prefix}"
   end
 end

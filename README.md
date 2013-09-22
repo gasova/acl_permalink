@@ -23,23 +23,11 @@ slug generators.
 
 AclPermalink is compatible with Active Record **3.0** and higher.
 
-## Version 4.x
+## Version 1.x
 
-AclPermalink 4.x introduces many changes incompatible with 3.x. If you're
-upgrading, please [read the
-docs](http://norman.github.io/acl_permalink/4.0/file.WhatsNew.html) to see what's
-new.
-
-## Docs
-
-The docs for this version can always be found
-[here](http://norman.github.io/acl_permalink/4.0/).
-
-The best place to start is with the
-[Guide](http://norman.github.io/acl_permalink/4.0/file.Guide.html),
-which compiles the top-level RDocs into one outlined document.
-
-You might also want to watch Ryan Bates's [Railscast on AclPermalink](http://railscasts.com/episodes/314-pretty-urls-with-friendlyid).
+AclPermalink 1.x is a fork of friendly_id 4.x found in https://github.com/norman/friendly_id/tree/4.0-stable 
+Their original authors are Norman Clarke, Adrian Mugnolo and Emilio Tagua. The purpose of this fork is to learn 
+Gem development and customize this library for my own needs.
 
 ## Rails Quickstart
 
@@ -49,8 +37,8 @@ You might also want to watch Ryan Bates's [Railscast on AclPermalink](http://rai
 
     cd my_app
 
-    gem "acl_permalink", "~> 4.0.10" # Note: You MUST use 4.0.9 or greater for Rails 3.2.10+
-
+    gem "acl_permalink"
+    
     rails generate scaffold user name:string slug:string
 
     # edit db/migrate/*_create_users.rb
@@ -76,59 +64,10 @@ You might also want to watch Ryan Bates's [Railscast on AclPermalink](http://rai
     User.find_each(&:save)
 
 
-## Benchmarks
-
-The latest benchmarks for AclPermalink are maintained
-[here](http://bit.ly/friendly-id-benchmarks).
-
-
-## Bugs
-
-Please report them on the [Github issue
-tracker](http://github.com/norman/acl_permalink/issues) for this project.
-
-If you have a bug to report, please include the following information:
-
-* **Version information for AclPermalink, Rails and Ruby.**
-* Full stack trace and error message (if you have them).
-* Any snippets of relevant model, view or controller code that shows how you
-  are using AclPermalink.
-
-If you are able to, it helps even more if you can fork AclPermalink on Github,
-and add a test that reproduces the error you are experiencing.
-
-For more info on how to report bugs, please see [this
-article](http://yourbugreportneedsmore.info/).
-
-## Thanks and Credits
-
-AclPermalink was originally created by Norman Clarke and Adrian Mugnolo, with
-significant help early in its life by Emilio Tagua. I'm deeply grateful for the
-generous contributions over the years from [many
-volunteers](https://github.com/norman/acl_permalink/contributors).
-
-Part of the inspiration to rework AclPermalink came from Darcy Laycock's library
-[Slugged](https://github.com/Sutto/slugged), which he was inspired to create
-because of frustrations he experienced while using AclPermalink 3.x. Seeing a
-smart programmer become frustrated with my code was enough of a kick in the
-butt to make me want to significantly improve this library.
-
-Many thanks to him for providing valid, real criticism while still being a cool
-about it. I definitely recommend you check out his library if for some reason
-AclPermalink doesn't do it for you.
-
-Thanks also to Loren Segal and Nick Plante for YARD and the
-[rubydoc.info](http://rubydoc.info/) website which AclPermalink uses for
-documentation.
-
-Lastly, AclPermalink uses [Travis](http://travis-ci.org/) for continuous
-integration. It's an excellent, free service created by a whole bunch of [good
-people](https://github.com/travis-ci) - if you're not already using it, you
-should be!
-
 ## License
 
-Copyright (c) 2008-2012 Norman Clarke and contributors, released under the MIT
+Fork Copyright (c) 2013 Gokce ASOVA released under the MIT license.
+Original Copyright (c) 2008-2012 Norman Clarke and contributors, released under the MIT
 license.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
