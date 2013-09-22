@@ -46,8 +46,6 @@ task :guide do
   buffer << read_comments("lib/acl_permalink/slugged.rb")
   buffer << read_comments("lib/acl_permalink/history.rb")
   buffer << read_comments("lib/acl_permalink/scoped.rb")
-  buffer << read_comments("lib/acl_permalink/simple_i18n.rb")
-  buffer << read_comments("lib/acl_permalink/globalize.rb")
   buffer << read_comments("lib/acl_permalink/reserved.rb")
 
   File.open("Guide.rdoc", "w") do |file|

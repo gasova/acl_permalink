@@ -1,190 +1,6 @@
 module AclPermalink
-=begin
-
-== Setting Up AclPermalink in Your Model
-
-To use AclPermalink in your ActiveRecord models, you must first either extend or
-include the AclPermalink module (it makes no difference), then invoke the
-{AclPermalink::Base#acl_permalink acl_permalink} method to configure your desired
-options:
-
-    class Foo < ActiveRecord::Base
-      include AclPermalink
-      acl_permalink :bar, :use => [:slugged, :simple_i18n]
-    end
-
-The most important option is `:use`, which you use to tell AclPermalink which
-addons it should use. See the documentation for this method for a list of all
-available addons, or skim through the rest of the docs to get a high-level
-overview.
-
-=== The Default Setup: Simple Models
-
-The simplest way to use AclPermalink is with a model that has a uniquely indexed
-column with no spaces or special characters, and that is seldom or never
-updated. The most common example of this is a user name:
-
-    class User < ActiveRecord::Base
-      extend AclPermalink
-      acl_permalink :login
-      validates_format_of :login, :with => /\A[a-z0-9]+\z/i
-    end
-
-    @user = User.find "joe"   # the old User.find(1) still works, too
-    @user.to_param            # returns "joe"
-    redirect_to @user         # the URL will be /users/joe
-
-In this case, AclPermalink assumes you want to use the column as-is; it will never
-modify the value of the column, and your application should ensure that the
-value is unique and admissible in a URL:
-
-    class City < ActiveRecord::Base
-      extend AclPermalink
-      acl_permalink :name
-    end
-
-    @city.find "Viña del Mar"
-    redirect_to @city # the URL will be /cities/Viña%20del%20Mar
-
-Writing the code to process an arbitrary string into a good identifier for use
-in a URL can be repetitive and surprisingly tricky, so for this reason it's
-often better and easier to use {AclPermalink::Slugged slugs}.
-
-=end
   module Base
 
-    # Configure AclPermalink's behavior in a model.
-    #
-    #   class Post < ActiveRecord::Base
-    #     extend AclPermalink
-    #     acl_permalink :title, :use => :slugged
-    #   end
-    #
-    # When given the optional block, this method will yield the class's instance
-    # of {AclPermalink::Configuration} to the block before evaluating other
-    # arguments, so configuration values set in the block may be overwritten by
-    # the arguments. This order was chosen to allow passing the same proc to
-    # multiple models, while being able to override the values it sets. Here is
-    # a contrived example:
-    #
-    #   $acl_permalink_config_proc = Proc.new do |config|
-    #     config.base = :name
-    #     config.use :slugged
-    #   end
-    #
-    #   class Foo < ActiveRecord::Base
-    #     extend AclPermalink
-    #     acl_permalink &$acl_permalink_config_proc
-    #   end
-    #
-    #   class Bar < ActiveRecord::Base
-    #     extend AclPermalink
-    #     acl_permalink :title, &$acl_permalink_config_proc
-    #   end
-    #
-    # However, it's usually better to use {AclPermalink.defaults} for this:
-    #
-    #   AclPermalink.defaults do |config|
-    #     config.base = :name
-    #     config.use :slugged
-    #   end
-    #
-    #   class Foo < ActiveRecord::Base
-    #     extend AclPermalink
-    #   end
-    #
-    #   class Bar < ActiveRecord::Base
-    #     extend AclPermalink
-    #     acl_permalink :title
-    #   end
-    #
-    # In general you should use the block syntax either because of your personal
-    # aesthetic preference, or because you need to share some functionality
-    # between multiple models that can't be well encapsulated by
-    # {AclPermalink.defaults}.
-    #
-    # === Order Method Calls in a Block vs Ordering Options
-    #
-    # When calling this method without a block, you may set the hash options in
-    # any order.
-    #
-    # However, when using block-style invocation, be sure to call
-    # AclPermalink::Configuration's {AclPermalink::Configuration#use use} method
-    # *prior* to the associated configuration options, because it will include
-    # modules into your class, and these modules in turn may add required
-    # configuration options to the +@acl_permalink_configuraton+'s class:
-    #
-    #   class Person < ActiveRecord::Base
-    #     acl_permalink do |config|
-    #       # This will work
-    #       config.use :slugged
-    #       config.sequence_separator = ":"
-    #     end
-    #   end
-    #
-    #   class Person < ActiveRecord::Base
-    #     acl_permalink do |config|
-    #       # This will fail
-    #       config.sequence_separator = ":"
-    #       config.use :slugged
-    #     end
-    #   end
-    #
-    # === Including Your Own Modules
-    #
-    # Because :use can accept a name or a Module, {AclPermalink.defaults defaults}
-    # can be a convenient place to set up behavior common to all classes using
-    # AclPermalink. You can include any module, or more conveniently, define one
-    # on-the-fly. For example, let's say you want to make
-    # Babosa[http://github.com/norman/babosa] the default slugging library in
-    # place of Active Support, and transliterate all slugs from Russian Cyrillic
-    # to ASCII:
-    #
-    #   require "babosa"
-    #
-    #   AclPermalink.defaults do |config|
-    #     config.base = :name
-    #     config.use :slugged
-    #     config.use Module.new {
-    #       def normalize_acl_permalink(text)
-    #         text.to_slug.normalize(:transliterations => [:russian, :latin])
-    #       end
-    #     }
-    #   end
-    #
-    #
-    # @option options [Symbol,Module] :use The addon or name of an addon to use.
-    #   By default, AclPermalink provides {AclPermalink::Slugged :slugged},
-    #   {AclPermalink::History :history}, {AclPermalink::Reserved :reserved}, and
-    #   {AclPermalink::Scoped :scoped}, {AclPermalink::SimpleI18n :simple_i18n},
-    #   and {AclPermalink::Globalize :globalize}.
-    #
-    # @option options [Array] :reserved_words Available when using +:reserved+,
-    #   which is loaded by default. Sets an array of words banned for use as
-    #   the basis of a acl_permalink. By default this includes "edit" and "new".
-    #
-    # @option options [Symbol] :scope Available when using +:scoped+.
-    #   Sets the relation or column used to scope generated friendly ids. This
-    #   option has no default value.
-    #
-    # @option options [Symbol] :sequence_separator Available when using +:slugged+.
-    #   Configures the sequence of characters used to separate a slug from a
-    #   sequence. Defaults to +--+.
-    #
-    # @option options [Symbol] :slug_column Available when using +:slugged+.
-    #   Configures the name of the column where AclPermalink will store the slug.
-    #   Defaults to +:slug+.
-    #
-    # @option options [Symbol] :slug_generator_class Available when using +:slugged+.
-    #   Sets the class used to generate unique slugs. You should not specify this
-    #   unless you're doing some extensive hacking on AclPermalink. Defaults to
-    #   {AclPermalink::SlugGenerator}.
-    #
-    # @yield Provides access to the model class's acl_permalink_config, which
-    #   allows an alternate configuration syntax, and conditional configuration
-    #   logic.
-    #
-    # @yieldparam config The model class's {AclPermalink::Configuration acl_permalink_config}.
     def acl_permalink(base = nil, options = {}, &block)
       yield acl_permalink_config if block_given?
       acl_permalink_config.use options.delete :use
@@ -193,11 +9,6 @@ often better and easier to use {AclPermalink::Slugged slugs}.
       include Model
     end
 
-    # Returns the model class's {AclPermalink::Configuration acl_permalink_config}.
-    # @note In the case of Single Table Inheritance (STI), this method will
-    #   duplicate the parent class's AclPermalink::Configuration and relation class
-    #   on first access. If you're concerned about thread safety, then be sure
-    #   to invoke {#acl_permalink} in your class for each model.
     def acl_permalink_config
       @acl_permalink_config ||= base_class.acl_permalink_config.dup.tap do |config|
         config.model_class = self
@@ -207,16 +18,6 @@ often better and easier to use {AclPermalink::Slugged slugs}.
 
     private
 
-    # Gets an instance of an the relation class.
-    #
-    # With AclPermalink this will be a subclass of ActiveRecord::Relation, rather than
-    # Relation itself, in order to avoid tainting all Active Record models with
-    # AclPermalink.
-    #
-    # Note that this method is essentially copied and pasted from Rails 3.2.9.rc1,
-    # with the exception of changing the relation class. Obviously this is less than
-    # ideal, but I know of no better way to accomplish this.
-    # @see #relation_class
     def relation #:nodoc:
       relation = relation_class.new(self, arel_table)
 
@@ -227,28 +28,6 @@ often better and easier to use {AclPermalink::Slugged slugs}.
       end
     end
 
-    # Gets (and if necessary, creates) a subclass of the model's relation class.
-    #
-    # Rather than including AclPermalink's overridden finder methods in
-    # ActiveRecord::Relation directly, AclPermalink adds them to a subclass
-    # specific to the AR model, and makes #relation return an instance of this
-    # class. By doing this, we ensure that only models that specifically extend
-    # AclPermalink have their finder methods overridden.
-    #
-    # Note that this method does not directly subclass ActiveRecord::Relation,
-    # but rather whatever class the @relation class instance variable is an
-    # instance of.  In practice, this will almost always end up being
-    # ActiveRecord::Relation, but in case another plugin is using this same
-    # pattern to extend a model's finder functionality, AclPermalink will not
-    # replace it, but rather override it.
-    #
-    # This pattern can be seen as a poor man's "refinement"
-    # (http://timelessrepo.com/refinements-in-ruby), and while I **think** it
-    # will work quite well, I realize that it could cause unexpected issues,
-    # since the authors of Rails are probably not intending this kind of usage
-    # against a private API. If this ends up being problematic I will probably
-    # revert back to the old behavior of simply extending
-    # ActiveRecord::Relation.
     def relation_class
       @relation_class or begin
         @relation_class = Class.new(relation_without_acl_permalink.class) do
@@ -264,22 +43,18 @@ often better and easier to use {AclPermalink::Slugged slugs}.
     end
   end
 
-  # Instance methods that will be added to all classes using AclPermalink.
   module Model
 
     attr_reader :current_acl_permalink
 
-    # Convenience method for accessing the class method of the same name.
     def acl_permalink_config
       self.class.acl_permalink_config
     end
 
-    # Get the instance's acl_permalink.
     def acl_permalink
       send acl_permalink_config.query_field
     end
 
-    # Either the acl_permalink, or the numeric id cast to a string.
     def to_param
       if diff = changes[acl_permalink_config.query_field]
         diff.first || diff.second

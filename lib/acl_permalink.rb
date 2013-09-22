@@ -48,34 +48,10 @@ module AclPermalink
 
   autoload :History,    "acl_permalink/history"
   autoload :Slug,       "acl_permalink/slug"
-  autoload :SimpleI18n, "acl_permalink/simple_i18n"
   autoload :Reserved,   "acl_permalink/reserved"
   autoload :Scoped,     "acl_permalink/scoped"
   autoload :Slugged,    "acl_permalink/slugged"
-  autoload :Globalize,  "acl_permalink/globalize"
 
-  # AclPermalink takes advantage of `extended` to do basic model setup, primarily
-  # extending {AclPermalink::Base} to add {AclPermalink::Base#acl_permalink
-  # acl_permalink} as a class method.
-  #
-  # Previous versions of AclPermalink simply patched ActiveRecord::Base, but this
-  # version tries to be less invasive.
-  #
-  # In addition to adding {AclPermalink::Base#acl_permalink acl_permalink}, the class
-  # instance variable +@acl_permalink_config+ is added. This variable is an
-  # instance of an anonymous subclass of {AclPermalink::Configuration}. This
-  # allows subsequently loaded modules like {AclPermalink::Slugged} and
-  # {AclPermalink::Scoped} to add functionality to the configuration class only
-  # for the current class, rather than monkey patching
-  # {AclPermalink::Configuration} directly. This isolates other models from large
-  # feature changes an addon to AclPermalink could potentially introduce.
-  #
-  # The upshot of this is, you can have two Active Record models that both have
-  # a @acl_permalink_config, but each config object can have different methods
-  # and behaviors depending on what modules have been loaded, without
-  # conflicts.  Keep this in mind if you're hacking on AclPermalink.
-  #
-  # For examples of this, see the source for {Scoped.included}.
   def self.extended(model_class)
     return if model_class.respond_to? :acl_permalink
     class << model_class
@@ -96,8 +72,6 @@ module AclPermalink
 
   # Set global defaults for all models using AclPermalink.
   #
-  # The default defaults are to use the +:reserved+ module and nothing else.
-  #
   # @example
   #   AclPermalink.defaults do |config|
   #     config.base = :name
@@ -111,11 +85,8 @@ module AclPermalink
   end
 
   # Set the ActiveRecord table name prefix to acl_permalink_
-  #
-  # This makes 'slugs' into 'acl_permalink_slugs' and also respects any
-  # 'global' table_name_prefix set on ActiveRecord::Base.
-  def self.table_name#_prefix
+  def self.table_name_prefix
     "#{ActiveRecord::Base.table_name_prefix}"
-    #"#{ActiveRecord::Base.table_name_prefix}"
+    #"#{ActiveRecord::Base.table_name_prefix}acl_permalink_slugs"
   end
 end
