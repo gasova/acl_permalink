@@ -86,7 +86,7 @@ module AclPermalink
 
   # Set the ActiveRecord table name prefix to acl_permalink_
   def self.table_name_prefix
-    "#{ActiveRecord::Base.table_name_prefix}"
+    "#{ActiveRecord::Base.table_name_prefix}acl_"
     #"#{ActiveRecord::Base.table_name_prefix}acl_permalink_slugs"
   end
 end
