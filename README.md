@@ -23,7 +23,7 @@ slug generators.
 
 AclPermalink 1.x is a fork of friendly_id 4.x found in https://github.com/norman/friendly_id/tree/4.0-stable 
 Their original authors are Norman Clarke, Adrian Mugnolo and Emilio Tagua. The purpose of this fork is to learn 
-Gem development and customize this library for my own needs.
+Gem development and customize this library for my own needs...
 
 ## Rails Quickstart
 
