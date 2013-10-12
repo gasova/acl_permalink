@@ -1,5 +1,6 @@
 # encoding: utf-8
 require "thread"
+require "acl_permalink/engine"
 require "acl_permalink/base"
 require "acl_permalink/object_utils"
 require "acl_permalink/configuration"
