@@ -54,7 +54,6 @@ module AclPermalink
   autoload :Slugged,    "acl_permalink/slugged"
 
   def self.extended(model_class)
-    self.table_name_prefix 'acl_'
     return if model_class.respond_to? :acl_permalink
     class << model_class
       alias relation_without_acl_permalink relation
