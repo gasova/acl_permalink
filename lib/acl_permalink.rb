@@ -5,6 +5,7 @@ require "acl_permalink/base"
 require "acl_permalink/object_utils"
 require "acl_permalink/configuration"
 require "acl_permalink/finder_methods"
+require "acl_permalink/table_name_prefix"
 
 =begin
 
